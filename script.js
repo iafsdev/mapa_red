@@ -26,6 +26,7 @@ window.startConceptMap = function() {
     document.getElementById('conceptMapTitle').textContent = `Mapa Conceptual: ${mainTopic}`;
     diagramDefinition = `graph TD;\n1[${mainTopic}];`;
     nodos.set(1, mainTopic);
+    updateStartNodeOptions();
     renderDiagram(diagramDefinition);
   } else {
     alert('Por favor, ingrese el tema principal del mapa conceptual.');
@@ -33,29 +34,41 @@ window.startConceptMap = function() {
 }
 
 window.addRelation = function() {
-  const startNode = document.getElementById('startNode').value.trim();
+  const startNodeSelect = document.getElementById('startNode');
+  const startNode = startNodeSelect.value;
   const endNode = document.getElementById('endNode').value.trim();
   const conector = document.getElementById('conector').value.trim();
 
-  console.log(startNode);
   let startNodeText = nodos.get(Number(startNode));
 
   if (startNode && endNode) {
     contador += 1;
     diagramDefinition += conector ? 
-    `\n${startNode}[${startNodeText}] -- ${conector} --> ${contador}[${endNode}];` :
-    `\n${startNode}[${startNodeText}] --> ${contador}[${endNode}];`;
+      `\n${startNode}[${startNodeText}] -- ${conector} --> ${contador}[${endNode}];` :
+      `\n${startNode}[${startNodeText}] --> ${contador}[${endNode}];`;
     renderDiagram(diagramDefinition);
     nodos.set(contador, endNode);
-    console.log(nodos)
+    updateStartNodeOptions();
 
     // Limpiar los campos después de agregar la relación
-    document.getElementById('startNode').value = '';
+    startNodeSelect.selectedIndex = 0;
     document.getElementById('endNode').value = '';
     document.getElementById('conector').value = '';
   } else {
     alert('Por favor, complete tanto el nodo inicial como el nodo final.');
   }
+}
+
+function updateStartNodeOptions() {
+  const startNodeSelect = document.getElementById('startNode');
+  startNodeSelect.innerHTML = ''; // Limpiar opciones existentes
+
+  nodos.forEach((value, key) => {
+    const option = document.createElement('option');
+    option.value = key;
+    option.textContent = `${key}: ${value}`;
+    startNodeSelect.appendChild(option);
+  });
 }
 
 async function renderDiagram(definition) {
